@@ -1,8 +1,9 @@
 import React from 'react';
 import { useRef } from 'react';
-import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useSendPasswordResetEmail, useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import auth from '../../Firebase.init';
+import Loading from '../Loading/Loading';
 
 const Login = () => {
     const [
@@ -11,6 +12,9 @@ const Login = () => {
         loading,
         error,
     ] = useSignInWithEmailAndPassword(auth);
+    const [sendPasswordResetEmail, sending,] = useSendPasswordResetEmail(
+        auth
+    );
     const navigate = useNavigate();
     const emailRef = useRef('');
     const passwordRef = useRef('');
@@ -35,6 +39,13 @@ const Login = () => {
 
 
     }
+    const resetPassword = async () => {
+        const email = emailRef.current.value;
+        console.log(email);
+
+        await sendPasswordResetEmail(email);
+        alert('Sent email');
+    }
     return (
         <div>
             <h1 className='text-center text-primary mt-5'>Please LogIn</h1>
@@ -52,8 +63,15 @@ const Login = () => {
                     <input type="checkbox" className="form-check-input" id="exampleCheck1" />
                     <label className="form-check-label" >Check me out</label>
                 </div>
+                {
+                    loading ? <Loading></Loading> : ""
+                }
+                {
+                    error ? <p>{error}</p> : ""
+                }
                 <button type="submit" className="btn btn-primary">Log In</button>
                 <p>New to Garden of Cars <Link to='/resister' className='text-primary text-decoration-none ' onClick={handleNavigate}>Please Resister?</Link></p>
+                <p>Forget Password? <Link onClick={resetPassword} className='text-decoration-none' to={""}>Reset Password</Link></p>
             </form>
         </div>
     );

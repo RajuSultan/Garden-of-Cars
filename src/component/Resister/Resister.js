@@ -1,41 +1,48 @@
 import React from 'react';
 import { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useCreateUserWithEmailAndPassword, useSendPasswordResetEmail, useUpdateProfile } from 'react-firebase-hooks/auth';
 import auth from '../../Firebase.init';
 import { useEffect, useState } from 'react';
 import google from '../../images/icon/google.png';
 import facebook from '../../images/icon/facebook.png';
 import github from '../../images/icon/github.png';
 import { GithubAuthProvider, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "firebase/auth";
+import Loading from '../Loading/Loading';
 
 const Resister = () => {
+
     const [checked, setChecked] = useState(false)
     const [
         createUserWithEmailAndPassword,
         user,
-        loading,
-        error,
+        loading
+
     ] = useCreateUserWithEmailAndPassword(auth);
+    const [updateProfile, updating, error] = useUpdateProfile(auth);
+
     const navigate = useNavigate();
     const emailRef = useRef('');
     const nameRef = useRef('');
     const passwordRef = useRef('');
-    const handleSubmitResister = event => {
+    const handleSubmitResister = async (event) => {
         event.preventDefault();
         const email = emailRef.current.value;
         const password = passwordRef.current.value;
-        // const displayName = nameRef.current.value;
-        // console.log(email, password);
-        if (checked) {
-            createUserWithEmailAndPassword(email, password);
+        const displayName = nameRef.current.value;
+        console.log(email, password);
 
-        }
+        await createUserWithEmailAndPassword(email, password);
+        await updateProfile({ displayName });
+        alert('Updated profile');
+
+
 
     }
     useEffect(() => {
         if (user) {
             navigate('/home');
+            console.log(user);
         }
     }, [user]);
 
@@ -72,6 +79,7 @@ const Resister = () => {
 
     }
 
+
     return (
         <div>
             <h1 className='text-center text-primary mt-5'>Please Resister</h1>
@@ -89,13 +97,17 @@ const Resister = () => {
                     <label className="form-label">Password</label>
                     <input ref={passwordRef} type="password" className="form-control" id="exampleInputPassword1" placeholder='Enter Your Password' required />
                 </div>
-                <div className="mb-3 form-check">
-                    <input type="checkbox" className="form-check-input" id="exampleCheck1" />
-                    <label className="form-check-label" >Check me out</label>
-                </div>
                 <input onClick={() => setChecked(!checked)} type="checkbox" name="terms" id="terms" />
                 <label className={`pb-2 ps-2 ${checked && "text-primary"}`} htmlFor="terms">Accept terms and Condition</label>
                 <br />
+
+                {
+                    loading || updating ? <Loading></Loading> : ""
+                }
+                {
+                    error ? <p>{error}</p> : ""
+                }
+
                 <button disabled={!checked} type="submit" className="btn btn-primary">Resister</button>
                 <p>If you have any account?<Link to='/login' className='text-primary text-decoration-none ' onClick={handleNavigate}>Please LogIn?</Link></p>
             </form>
