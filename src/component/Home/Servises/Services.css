@@ -1,0 +1,22 @@
+.cars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
+    margin: 30px;
+}
+
+.garden {
+    text-align: center;
+}
+
+@media only screen and (max-width: 539px) {
+    .cars {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+@media only screen and (min-width: 540px) and (max-width:720px) {
+    .cars {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
